@@ -1,0 +1,9 @@
+{
+  "handSize": 5,
+  "sections": [
+    { "id": "market", "number": 1, "name": "Магазин", "caption": "Розбудова колонії", "symbol": "structure" },
+    { "id": "development", "number": 2, "name": "Розвиток", "caption": "Нові можливості", "symbol": "growth" },
+    { "id": "reserved", "number": 3, "name": "Секція 3", "caption": "Місце для нової дії", "symbol": "layers" },
+    { "id": "expeditions", "number": 4, "name": "Експедиції", "caption": "За межами прихистку", "symbol": "compass" }
+  ]
+}
