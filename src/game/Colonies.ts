@@ -9,6 +9,10 @@ export interface BlankCard {
 
 export interface ColoniesState {
   sections: typeof scene.sections;
+  sectionCards: Record<string, BlankCard[]>;
+  leaderID: string;
+  dice: number[];
+  diceRollCount: number;
   players: Record<string, { colony: BuildingCard[]; hand: BlankCard[]; resources: ResourceToken[] }>;
 }
 
@@ -16,7 +20,13 @@ export interface ColoniesState {
 export const Colonies: Game<ColoniesState> = {
   name: 'colonies',
   setup: ({ ctx }) => ({
+    leaderID: '0',
+    dice: [],
+    diceRollCount: 0,
     sections: scene.sections.map((section) => ({ ...section })),
+    sectionCards: Object.fromEntries(['market', 'development'].map((id) => [id,
+      Array.from({ length: scene.sectionCardCount }, (_, index) => ({ id: `${id}-card-${index}` })),
+    ])),
     players: Object.fromEntries(
       Array.from({ length: ctx.numPlayers }, (_, index) => [
         String(index),
@@ -30,5 +40,11 @@ export const Colonies: Game<ColoniesState> = {
       ]),
     ),
   }),
-  moves: {},
+  moves: {
+    rollDice: ({ G, random, playerID }) => {
+      if (playerID !== G.leaderID) return;
+      G.dice = random.D6(4);
+      G.diceRollCount += 1;
+    },
+  },
 };

@@ -1,5 +1,6 @@
 {
   "handSize": 5,
+  "sectionCardCount": 4,
   "sections": [
     { "id": "market", "number": 1, "name": "Магазин", "caption": "Розбудова колонії", "symbol": "structure" },
     { "id": "development", "number": 2, "name": "Розвиток", "caption": "Нові можливості", "symbol": "growth" },

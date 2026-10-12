@@ -65,15 +65,19 @@ export function boardTexture(sections: ColoniesState['sections']) {
     const colors = ['#e9e6d5', '#dfe6d6', '#e4dfd0', '#d2e0d5'];
     sections.forEach((section, index) => {
       const x = 45 + index * 365;
+      const hasCards = section.id === 'market' || section.id === 'development';
       ctx.fillStyle = colors[index]; ctx.fillRect(x, 162, 348, 550);
       ctx.strokeStyle = '#afbba5'; ctx.strokeRect(x, 162, 348, 550);
       text(ctx, `0${section.number}`, x + 45, 211, 26, '#7b8b73');
-      text(ctx, section.name, x + 174, 377, 29, '#354d46', 700);
-      text(ctx, section.caption, x + 174, 417, 18, '#7b8b73');
-      ctx.setLineDash([8, 6]); ctx.strokeRect(x + 28, 579, 292, 87); ctx.setLineDash([]);
-      for (let dot = 0; dot < 3; dot++) { ctx.beginPath(); ctx.arc(x + 128 + dot * 46, 622, 13, 0, Math.PI * 2); ctx.stroke(); }
-      if (section.symbol === 'structure') dome(ctx, x + 174, 310, 45);
-      else { ctx.beginPath(); ctx.arc(x + 174, 280, 31, 0, Math.PI * 2); ctx.moveTo(x + 174, 237); ctx.lineTo(x + 174, 323); ctx.moveTo(x + 131, 280); ctx.lineTo(x + 217, 280); ctx.stroke(); }
+      text(ctx, section.name, x + 174, hasCards ? 243 : 377, 29, '#354d46', 700);
+      text(ctx, section.caption, x + 174, hasCards ? 277 : 417, 18, '#7b8b73');
+      const workerY = hasCards ? 650 : 579;
+      ctx.setLineDash([8, 6]); ctx.strokeRect(x + 28, workerY, 292, hasCards ? 48 : 87); ctx.setLineDash([]);
+      for (let dot = 0; dot < 3; dot++) { ctx.beginPath(); ctx.arc(x + 128 + dot * 46, workerY + (hasCards ? 24 : 43), 13, 0, Math.PI * 2); ctx.stroke(); }
+      if (!hasCards) {
+        if (section.symbol === 'structure') dome(ctx, x + 174, 310, 45);
+        else { ctx.beginPath(); ctx.arc(x + 174, 280, 31, 0, Math.PI * 2); ctx.moveTo(x + 174, 237); ctx.lineTo(x + 174, 323); ctx.moveTo(x + 131, 280); ctx.lineTo(x + 217, 280); ctx.stroke(); }
+      }
     });
     text(ctx, 'ДОСЛІДЖУЙ · РОЗБУДОВУЙ · ВИЖИВАЙ', 768, 757, 16, '#88957d');
   });
@@ -87,6 +91,14 @@ export function chipTexture(type: ResourceType) {
   return canvasTexture(128, 128, (ctx) => {
     ctx.clearRect(0, 0, 128, 128);
     text(ctx, resources[type].symbol, 64, 93, 76, '#344b42', 700);
+  });
+}
+
+export function diceFaceTexture(icon: string) {
+  return canvasTexture(256, 256, (ctx) => {
+    ctx.fillStyle = '#efe9d9'; ctx.fillRect(0, 0, 256, 256);
+    ctx.strokeStyle = '#c7b891'; ctx.lineWidth = 8; ctx.strokeRect(9, 9, 238, 238);
+    text(ctx, icon, 128, 173, 116, '#354d46', 700);
   });
 }
 

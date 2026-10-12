@@ -97,6 +97,28 @@ button svg { width: 28px; height: 28px; }
 .scene-toolbar button { pointer-events: auto; color: #c8d1b6; background: #19382ecf; border: 1px solid #66837266; border-radius: 5px; padding: 9px 13px; font-size: 11px; }
 .view-controls { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .view-controls button[aria-pressed="true"] { background: #48634c; border-color: #dfc18b; color: #fff0cf; }
+.leader-marker { position: relative; width: 42px; height: 36px; padding: 4px; background: transparent; border: 0; color: #edc875; cursor: help; filter: drop-shadow(0 2px 3px #0007); }
+.leader-marker svg { width: 100%; height: 100%; }
+.leader-tooltip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 7px 11px; border: 1px solid #8da27c66; border-radius: 5px; background: #18372e; color: #fff0cf; font-size: 12px; white-space: nowrap; }
+.leader-marker:hover .leader-tooltip, .leader-marker:focus-visible .leader-tooltip { display: block; }
+.dice-controls { position: absolute; left: 30px; top: 140px; width: 240px; padding: 15px; background: #18372ee8; border: 1px solid #8da27c44; border-radius: 8px; backdrop-filter: blur(12px); color: #c8d1b6; }
+.dice-controls .eyebrow { font-size: 9px; color: #dfc18b; }
+.dice-controls > button { display: block; margin-top: 12px; width: 100%; background: #48634c; border: 1px solid #dfc18b88; color: #fff0cf; padding: 10px; border-radius: 5px; font-size: 12px; }
+.dice-controls > button:disabled { opacity: .45; }
+.dice-controls p { font-size: 10px; line-height: 1.5; color: #a0b29a; }
+.dice-results { display: flex; gap: 9px; margin-top: 12px; }
+.dice-results > span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 5px; background: #efe9d9; font-size: 23px; }
+@media (max-width: 700px) { .dice-controls { left: 14px; top: 150px; width: 145px; padding: 10px; } .dice-results { gap: 4px; flex-wrap: wrap; } }
+.camera-debug { position: absolute; top: 140px; right: 30px; width: 245px; padding: 14px; border: 1px solid #8da27c44; border-radius: 8px; background: #18372ee8; backdrop-filter: blur(12px); color: #c8d1b6; font-size: 11px; }
+.camera-debug summary { cursor: pointer; color: #dfc18b; }
+.camera-debug label { display: flex; justify-content: space-between; margin: 17px 0 10px; }
+.camera-debug output { font-variant-numeric: tabular-nums; color: #fff0cf; }
+.camera-debug input { width: 100%; accent-color: #dfc18b; cursor: pointer; }
+.camera-debug input:disabled { cursor: default; opacity: .4; }
+.camera-angle-range { display: flex; justify-content: space-between; font-size: 9px; color: #a0b29a; }
+.camera-debug p { font-size: 10px; line-height: 1.5; color: #a0b29a; }
+.camera-debug button { color: #c8d1b6; background: #d6d6b915; border: 1px solid #a6b59433; border-radius: 4px; padding: 6px 9px; font-size: 10px; }
+@media (max-width: 700px) { .camera-debug { right: 14px; top: 150px; width: 210px; } }
 .colony-summary { position: absolute; left: 30px; bottom: 26px; width: 230px; padding: 18px; background: #18372ee8; border: 1px solid #8da27c44; border-radius: 8px; backdrop-filter: blur(12px); }
 .colony-summary .eyebrow { font-size: 8px; color: #b7c8a8; }
 .colony-summary h2 { font-size: 17px; font-weight: 500; margin: 7px 0 13px; }
