@@ -1,0 +1,8 @@
+{
+  "dice": [
+    { "id": "sun", "faces": ["sun", "wind", "deposits", "wreckage", "monster", "sun"] },
+    { "id": "wind", "faces": ["sun", "wind", "deposits", "wreckage", "monster", "wind"] },
+    { "id": "deposits", "faces": ["sun", "wind", "deposits", "wreckage", "monster", "deposits"] },
+    { "id": "wreckage", "faces": ["sun", "wind", "deposits", "wreckage", "wreckage", "wreckage"] }
+  ]
+}

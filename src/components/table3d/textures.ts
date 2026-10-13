@@ -2,6 +2,19 @@ import { CanvasTexture, SRGBColorSpace } from 'three';
 import type { BuildingDefinition } from '../../game/buildings';
 import type { ColoniesState } from '../../game/Colonies';
 import { resources, type ResourceType } from '../../game/resources';
+import { iconPaths } from '../icon-paths';
+
+function vectorIcon(ctx: CanvasRenderingContext2D, icon: string, x: number, y: number, size: number, color: string) {
+  ctx.save(); ctx.translate(x - size / 2, y - size / 2); ctx.scale(size / 40, size / 40);
+  ctx.strokeStyle = color; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const path of iconPaths[icon] ?? []) ctx.stroke(new Path2D(path));
+  ctx.restore();
+}
+
+function resourceIcon(ctx: CanvasRenderingContext2D, resource: ResourceType, x: number, baseline: number, size: number, color = '#354d46') {
+  if (resource === 'weapon') vectorIcon(ctx, 'weapon', x, baseline - size * .35, size, '#bd4141');
+  else text(ctx, resources[resource].symbol, x, baseline, size, color, 700);
+}
 
 function canvasTexture(width: number, height: number, paint: (ctx: CanvasRenderingContext2D) => void) {
   const canvas = document.createElement('canvas');
@@ -29,16 +42,18 @@ export function buildingTexture(definition: BuildingDefinition) {
   return canvasTexture(384, 540, (ctx) => {
     ctx.fillStyle = '#efe9d9'; ctx.fillRect(0, 0, 384, 540);
     ctx.strokeStyle = '#c7c4ad'; ctx.lineWidth = 3; ctx.strokeRect(18, 18, 348, 504);
-    text(ctx, 'УСТАНОВКА', 192, 56, 15, '#85937b');
-    text(ctx, definition.name, 192, 108, 33, '#354d46', 700);
+    text(ctx, definition.typeLabel, 192, 56, 15, '#85937b');
+    text(ctx, definition.name, 192, 108, definition.name.length > 16 ? 24 : 30, '#354d46', 700);
     if (definition.icon === 'dome') dome(ctx, 192, 265, 70);
-    text(ctx, `${definition.production.amount} ${resources[definition.production.resource].symbol}`, 192, 372, 44, '#354d46', 700);
+    if (iconPaths[definition.icon]) vectorIcon(ctx, definition.icon, 192, 230, 125, definition.production.resource === 'weapon' ? '#bd4141' : '#82947b');
+    text(ctx, String(definition.production.amount), 163, 372, 44, '#354d46', 700);
+    resourceIcon(ctx, definition.production.resource, 215, 372, 44);
     const slotSize = 70, gap = 12;
     const total = definition.storage.slotCount * slotSize + (definition.storage.slotCount - 1) * gap;
     for (let index = 0; index < definition.storage.slotCount; index++) {
       const x = (384 - total) / 2 + index * (slotSize + gap);
       ctx.setLineDash([6, 5]); ctx.strokeStyle = '#9bab90'; ctx.lineWidth = 2; ctx.strokeRect(x, 415, slotSize, slotSize); ctx.setLineDash([]);
-      text(ctx, resources[definition.storage.resource].symbol, x + slotSize / 2, 462, 25, '#9bab90');
+      resourceIcon(ctx, definition.storage.resource, x + slotSize / 2, 462, 25, '#9bab90');
     }
   });
 }
@@ -90,7 +105,7 @@ export function labelTexture(label: string, color: string) {
 export function chipTexture(type: ResourceType) {
   return canvasTexture(128, 128, (ctx) => {
     ctx.clearRect(0, 0, 128, 128);
-    text(ctx, resources[type].symbol, 64, 93, 76, '#344b42', 700);
+    resourceIcon(ctx, type, 64, 93, 76, '#344b42');
   });
 }
 

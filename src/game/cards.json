@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "categories": [
+    {
+      "id": "installations", "type": "installation", "title": "Установки", "symbol": "dome",
+      "description": "Розбудова колонії та пасивне виробництво ресурсів.", "rule": "6", "note": ""
+    },
+    {
+      "id": "boosters", "type": "booster", "title": "Підсилювачі", "symbol": "growth",
+      "description": "Оснащення конвертопланів, яке посилює групу дослідників.", "rule": "7",
+      "note": "Підсилювач встановлюється у слот конвертоплана. Бонуси ініціативи, вантажності та інші ефекти визначатимемо для конкретних карт."
+    },
+    {
+      "id": "monsters", "type": "monster", "title": "Монстри та катастрофи", "symbol": "compass",
+      "description": "Одна карта монстра — два окремі ефекти для різних подій.", "rule": "8",
+      "note": "При колапсі розігрується ефект катастрофи й карта скидається. Активний монстр застосовує пасивний ефект до перемоги над ним."
+    }
+  ],
+  "cards": [
+    {
+      "id": "main-dome", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Осердя", "icon": "dome", "iconKind": "symbol", "typeLabel": "УСТАНОВКА",
+      "production": { "resource": "coin", "amount": 1 },
+      "storage": { "resource": "coin", "slotCount": 1 },
+      "note": "Для «Осердя» підтверджено опис 1 🪙. Один слот — налаштування макета; місткість і період доходу ще не затверджені."
+    },
+    {
+      "id": "solar-panel-1", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Сонячна панель I", "icon": "solar", "iconKind": "symbol", "typeLabel": "СОНЯЧНА УСТАНОВКА",
+      "production": { "resource": "energy", "amount": 1, "trigger": "sun" },
+      "storage": { "resource": "energy", "slotCount": 1 },
+      "note": "Накопичує сонячну енергію. Вихід 1 ⚡ — тимчасове значення для макета; виробництво ще не реалізоване."
+    },
+    {
+      "id": "solar-panel-2", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Сонячна панель II", "icon": "solar", "iconKind": "symbol", "typeLabel": "СОНЯЧНА УСТАНОВКА",
+      "production": { "resource": "energy", "amount": 1, "trigger": "sun" },
+      "storage": { "resource": "energy", "slotCount": 2 },
+      "note": "Накопичує сонячну енергію. Вихід 1 ⚡ — тимчасове значення для макета; виробництво ще не реалізоване."
+    },
+    {
+      "id": "weapon-workshop-1", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Збройна майстерня I", "icon": "weapon", "iconKind": "symbol", "typeLabel": "ЗБРОЙНА УСТАНОВКА",
+      "production": { "resource": "weapon", "amount": 1, "trigger": null },
+      "storage": { "resource": "weapon", "slotCount": 1 },
+      "note": "Накопичує зброю. Вихід 1 одиниця — тимчасове значення для макета. Умову виробництва ще не визначено; виробництво не реалізоване."
+    },
+    {
+      "id": "weapon-workshop-2", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Збройна майстерня II", "icon": "weapon", "iconKind": "symbol", "typeLabel": "ЗБРОЙНА УСТАНОВКА",
+      "production": { "resource": "weapon", "amount": 1, "trigger": null },
+      "storage": { "resource": "weapon", "slotCount": 2 },
+      "note": "Накопичує зброю. Вихід 1 одиниця — тимчасове значення для макета. Умову виробництва ще не визначено; виробництво не реалізоване."
+    },
+    {
+      "id": "weapon-workshop-3", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Збройна майстерня III", "icon": "weapon", "iconKind": "symbol", "typeLabel": "ЗБРОЙНА УСТАНОВКА",
+      "production": { "resource": "weapon", "amount": 1, "trigger": null },
+      "storage": { "resource": "weapon", "slotCount": 3 },
+      "note": "Накопичує зброю. Вихід 1 одиниця — тимчасове значення для макета. Умову виробництва ще не визначено; виробництво не реалізоване."
+    },
+    {
+      "id": "wind-generator-1", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Вітрова установка I", "icon": "wind-turbine", "iconKind": "symbol", "typeLabel": "ВІТРОВА УСТАНОВКА",
+      "production": { "resource": "energy", "amount": 1, "trigger": "wind" },
+      "storage": { "resource": "energy", "slotCount": 1 },
+      "note": "Накопичує вітрову енергію. Ресурс ⚡ спільний із сонячними установками. Вихід 1 ⚡ — тимчасове значення для макета; виробництво ще не реалізоване."
+    },
+    {
+      "id": "wind-generator-2", "categoryId": "installations", "type": "installation", "status": "prototype",
+      "name": "Вітрова установка II", "icon": "wind-turbine", "iconKind": "symbol", "typeLabel": "ВІТРОВА УСТАНОВКА",
+      "production": { "resource": "energy", "amount": 1, "trigger": "wind" },
+      "storage": { "resource": "energy", "slotCount": 2 },
+      "note": "Накопичує вітрову енергію. Ресурс ⚡ спільний із сонячними установками. Вихід 1 ⚡ — тимчасове значення для макета; виробництво ще не реалізоване."
+    },
+    {
+      "id": "booster-template", "categoryId": "boosters", "type": "booster", "status": "placeholder",
+      "name": "Підсилювач", "icon": "growth", "iconKind": "symbol", "typeLabel": "ПІДСИЛЮВАЧ", "note": "",
+      "effects": [{ "label": "Ефект оснащення", "text": null }]
+    },
+    {
+      "id": "monster-template", "categoryId": "monsters", "type": "monster", "status": "placeholder",
+      "name": "Монстр", "icon": "👹", "iconKind": "emoji", "typeLabel": "МОНСТР / КАТАСТРОФА", "note": "",
+      "effects": [
+        { "label": "Пасивний ефект", "text": null },
+        { "label": "Ефект катастрофи", "text": null }
+      ]
+    }
+  ]
+}

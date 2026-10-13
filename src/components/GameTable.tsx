@@ -11,9 +11,10 @@ import type { ColoniesState } from "../game/Colonies";
 import { Symbol } from "./Symbol";
 import { InstallationCard } from "./InstallationCard";
 import { ResourceChip } from "./ResourceSlot";
+import { ResourceIcon } from "./ResourceIcon";
 import { buildings } from "../game/buildings";
 import { resources } from "../game/resources";
-import { diceFaces } from "../game/dice";
+import { diceDefinitions, diceFaces, getDiceFace } from "../game/dice";
 import type { CardInspection, TableView } from "./table3d/TableScene";
 
 const TableScene = lazy(() =>
@@ -208,9 +209,16 @@ export function GameTable({ G, playerID, moves, onExit }: TableProps) {
         <span className="eyebrow">КУБИКИ КОЛА</span>
         <button onClick={() => moves.rollDice()} disabled={id !== G.leaderID}>Кинути 4 кубики</button>
         <div className="dice-results" aria-live="polite" aria-atomic="true">
-          {G.dice.length ? G.dice.map((value, index) => <span key={index} title={diceFaces[value - 1].label} aria-label={`Кубик ${index + 1}: ${diceFaces[value - 1].label}`}>{diceFaces[value - 1].icon}</span>) : <p>Очікують першого кидка</p>}
+          {G.dice.length ? G.dice.map((value, index) => {
+            const face = getDiceFace(index, value);
+            return <span key={index} title={face.label} aria-label={`Кубик ${index + 1}: ${face.label}`}>{face.icon}</span>;
+          }) : <p>Очікують першого кидка</p>}
         </div>
-        <p>{G.diceRollCount ? `Кидок №${G.diceRollCount} · ефекти граней ще не задані` : 'Іконки граней тимчасові'}</p>
+        <p>{G.diceRollCount ? `Кидок №${G.diceRollCount} · ефекти ще не реалізовані` : 'Чотири різні кубики прогнозу'}</p>
+        <details className="dice-face-list">
+          <summary>Грані кубиків</summary>
+          {diceDefinitions.map((die, index) => <div key={die.id} aria-label={`Грані кубика ${index + 1}`}><span>{index + 1}</span>{die.faces.map((face, faceIndex) => <span key={faceIndex} title={diceFaces[face].label} aria-label={diceFaces[face].label}>{diceFaces[face].icon}</span>)}</div>)}
+        </details>
       </section>
       <aside className="colony-summary" aria-label="Моя колонія">
         <span className="eyebrow">МІЙ ПРИХИСТОК</span>
@@ -229,7 +237,7 @@ export function GameTable({ G, playerID, moves, onExit }: TableProps) {
               <span>{definition.name}</span>
               <span>
                 {definition.production.amount}{" "}
-                {resources[definition.production.resource].symbol}
+                <ResourceIcon type={definition.production.resource} />
               </span>
             </button>
           );

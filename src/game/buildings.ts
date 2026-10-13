@@ -1,14 +1,9 @@
 import type { ResourceToken, ResourceType } from './resources';
+import { installationDefinitions, type InstallationDefinition } from './cards';
 
 export type SlotCount = 1 | 2 | 3;
 
-export interface BuildingDefinition {
-  id: string;
-  name: string;
-  icon: string;
-  production: { resource: ResourceType; amount: number };
-  storage: { resource: ResourceType; slotCount: SlotCount };
-}
+export type BuildingDefinition = InstallationDefinition;
 
 export interface BuildingCard {
   id: string;
@@ -16,16 +11,9 @@ export interface BuildingCard {
   slots: (ResourceToken | null)[];
 }
 
-export const buildings: Record<string, BuildingDefinition> = {
-  'main-dome': {
-    id: 'main-dome',
-    name: 'Осердя',
-    icon: 'dome',
-    production: { resource: 'coin', amount: 1 },
-    // One coin slot is a visual prototype default; its gameplay capacity is not settled.
-    storage: { resource: 'coin', slotCount: 1 },
-  },
-};
+export const buildings: Record<string, BuildingDefinition> = Object.fromEntries(
+  installationDefinitions.map((definition) => [definition.id, definition]),
+);
 
 export function createBuildingCard(definitionId: string, instanceId: string): BuildingCard {
   const definition = buildings[definitionId];

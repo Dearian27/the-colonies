@@ -2,6 +2,7 @@ import type { Game } from 'boardgame.io';
 import scene from './scene.json';
 import { createBuildingCard, type BuildingCard } from './buildings';
 import type { ResourceToken } from './resources';
+import { diceDefinitions } from './dice';
 
 export interface BlankCard {
   id: string;
@@ -43,7 +44,7 @@ export const Colonies: Game<ColoniesState> = {
   moves: {
     rollDice: ({ G, random, playerID }) => {
       if (playerID !== G.leaderID) return;
-      G.dice = random.D6(4);
+      G.dice = random.D6(diceDefinitions.length);
       G.diceRollCount += 1;
     },
   },

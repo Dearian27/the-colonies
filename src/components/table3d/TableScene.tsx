@@ -5,7 +5,7 @@ import { MOUSE, TOUCH, RepeatWrapping, type Group, type Texture } from 'three';
 import type { ColoniesState } from '../../game/Colonies';
 import { buildings, type BuildingCard } from '../../game/buildings';
 import type { ResourceType } from '../../game/resources';
-import { diceFaces } from '../../game/dice';
+import { diceDefinitions, diceFaces } from '../../game/dice';
 import { blankTexture, boardTexture, buildingTexture, chipTexture, diceFaceTexture, feltTexture, labelTexture } from './textures';
 
 export type CardInspection = { kind: 'building'; card: BuildingCard; owner: string } | { kind: 'blank'; id: string; owner?: string };
@@ -27,7 +27,7 @@ function Label({ value, color = '#d1d3b3', width = 3.5 }: { value: string; color
 }
 
 function Chip({ type, position }: { type: ResourceType; position: [number, number, number] }) {
-  const colors = { coin: '#e4bd6e', weapon: '#9eb4b5', energy: '#e6d66f' };
+  const colors = { coin: '#e4bd6e', weapon: '#e6b7aa', energy: '#e6d66f' };
   const icon = useTexture(() => chipTexture(type), type);
   return <group position={position}><mesh castShadow receiveShadow><cylinderGeometry args={[.13, .13, .07, 24]} /><meshStandardMaterial color={colors[type]} roughness={.48} metalness={.15} /></mesh><mesh position={[0, .04, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[.1, .113, 24]} /><meshStandardMaterial color="#f7eac8" /></mesh><mesh position={[0, .042, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[.18, .18]} /><meshBasicMaterial map={icon} transparent depthWrite={false} /></mesh></group>;
 }
@@ -49,7 +49,7 @@ function Die({ value, index, rollCount }: { value: number; index: number; rollCo
   const group = useRef<Group>(null);
   const elapsed = useRef(1);
   const { invalidate } = useThree();
-  const textures = useMemo(() => diceFaces.map((face) => diceFaceTexture(face.icon)), []);
+  const textures = useMemo(() => diceDefinitions[index].faces.map((face) => diceFaceTexture(diceFaces[face].icon)), [index]);
   useEffect(() => () => textures.forEach((texture) => texture.dispose()), [textures]);
   useEffect(() => { elapsed.current = rollCount > 0 ? 0 : 1; invalidate(); }, [rollCount, invalidate]);
   useFrame((_, delta) => {
@@ -70,7 +70,7 @@ function DiceTray({ G }: { G: ColoniesState }) {
   return <group position={[6, .08, 3.4]}>
     <RoundedBox args={[2.4, .08, 2.25]} radius={.04} smoothness={3} receiveShadow><meshStandardMaterial color="#243f36" /></RoundedBox>
     <group position={[0, .05, -.9]}><Label value="КУБИКИ КОЛА" width={2} /></group>
-    {Array.from({ length: 4 }, (_, index) => <group key={index} position={[(index % 2 - .5) * .85, 0, -.3 + Math.floor(index / 2) * .85]}><Die value={G.dice[index] ?? index + 1} index={index} rollCount={G.diceRollCount} /></group>)}
+    {diceDefinitions.map((die, index) => <group key={die.id} position={[(index % 2 - .5) * .85, 0, -.3 + Math.floor(index / 2) * .85]}><Die value={G.dice[index] ?? index + 1} index={index} rollCount={G.diceRollCount} /></group>)}
   </group>;
 }
 
