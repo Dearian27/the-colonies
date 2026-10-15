@@ -16,9 +16,9 @@ export function InstallationCard({ card }: { card: BuildingCard }) {
         <p className="installation-description" aria-label={`${definition.production.amount} ${resources[definition.production.resource].label}`}>
           {definition.production.amount} <ResourceIcon type={definition.production.resource} />
         </p>
-        <div className="installation-slots">
+        {definition.storage.mode === 'slots' && <div className="installation-slots">
           {card.slots.map((token, index) => <ResourceSlot key={index} number={index + 1} resource={definition.storage.resource} token={token} />)}
-        </div>
+        </div>}
       </div>
     </article>
   );

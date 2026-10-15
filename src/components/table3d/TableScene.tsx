@@ -4,12 +4,17 @@ import { Html, OrbitControls, OrthographicCamera, PerspectiveCamera, RoundedBox 
 import { MOUSE, TOUCH, RepeatWrapping, type Group, type Texture } from 'three';
 import type { ColoniesState } from '../../game/Colonies';
 import { buildings, type BuildingCard } from '../../game/buildings';
+import { aircraft, type AircraftCard } from '../../game/aircraft';
+import { getPlayerBalance } from '../../game/rules';
 import type { ResourceType } from '../../game/resources';
 import { diceDefinitions, diceFaces } from '../../game/dice';
-import { blankTexture, boardTexture, buildingTexture, chipTexture, diceFaceTexture, feltTexture, labelTexture } from './textures';
+import { aircraftTexture, balanceTexture, blankTexture, boardTexture, buildingTexture, chipTexture, diceFaceTexture, feltTexture, labelTexture } from './textures';
 
-export type CardInspection = { kind: 'building'; card: BuildingCard; owner: string } | { kind: 'blank'; id: string; owner?: string };
+export type CardInspection = { kind: 'building'; card: BuildingCard; owner: string } | { kind: 'aircraft'; card: AircraftCard; owner: string } | { kind: 'blank'; id: string; owner?: string };
 export type TableView = 'player' | 'top';
+
+// Both facing mats share the board's centre line and equal edge clearance.
+const tableLayout = { boardX: .35, boardZ: -.65, matX: .6, matZ: -.15, playerZ: 3.1 };
 
 function useTexture(factory: () => Texture, key: string) {
   const texture = useMemo(factory, [key]);
@@ -21,8 +26,8 @@ function Surface({ texture, width, height, y = .04 }: { texture: Texture; width:
   return <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, y, 0]} receiveShadow><planeGeometry args={[width, height]} /><meshStandardMaterial map={texture} transparent roughness={.9} /></mesh>;
 }
 
-function Label({ value, color = '#d1d3b3', width = 3.5 }: { value: string; color?: string; width?: number }) {
-  const texture = useTexture(() => labelTexture(value, color), `${value}-${color}`);
+function Label({ value, color = '#d1d3b3', width = 3.5, align = 'center' }: { value: string; color?: string; width?: number; align?: 'left' | 'center' }) {
+  const texture = useTexture(() => labelTexture(value, color, align), `${value}-${color}-${align}`);
   return <Surface texture={texture} width={width} height={width / 7.68} y={.035} />;
 }
 
@@ -43,6 +48,15 @@ function TableCard({ card, hidden = false, onClick }: { card?: BuildingCard; hid
       {definition && card?.slots.map((token, index) => token && <Chip key={token.id} type={token.type} position={[(index - (card.slots.length - 1) / 2) * .175, .07, .36]} />)}
     </group>
   );
+}
+
+function TableAircraft({ card, onClick }: { card: AircraftCard; onClick: () => void }) {
+  const definition = aircraft[card.definitionId];
+  const texture = useTexture(() => aircraftTexture(definition), definition.id);
+  return <group onClick={(event) => { event.stopPropagation(); onClick(); }} position={[0, .06, 0]}>
+    <RoundedBox args={[.94, .05, 1.3]} radius={.02} smoothness={2} castShadow receiveShadow><meshStandardMaterial color="#d3dfcc" roughness={.8} /></RoundedBox>
+    <Surface texture={texture} width={.89} height={1.25} y={.03} />
+  </group>;
 }
 
 function Die({ value, index, rollCount }: { value: number; index: number; rollCount: number }) {
@@ -70,7 +84,7 @@ function DiceTray({ G }: { G: ColoniesState }) {
   return <group position={[6, .08, 3.4]}>
     <RoundedBox args={[2.4, .08, 2.25]} radius={.04} smoothness={3} receiveShadow><meshStandardMaterial color="#243f36" /></RoundedBox>
     <group position={[0, .05, -.9]}><Label value="КУБИКИ КОЛА" width={2} /></group>
-    {diceDefinitions.map((die, index) => <group key={die.id} position={[(index % 2 - .5) * .85, 0, -.3 + Math.floor(index / 2) * .85]}><Die value={G.dice[index] ?? index + 1} index={index} rollCount={G.diceRollCount} /></group>)}
+    {diceDefinitions.map((die, index) => <group key={die.id} position={[(index % 2 - .5) * .85, 0, -.3 + Math.floor(index / 2) * .85]}><Die value={G.dice[index] ?? index + 1} index={index} rollCount={G.round} /></group>)}
   </group>;
 }
 
@@ -78,24 +92,30 @@ function PlayerZone({ id, G, own, onInspect }: { id: string; G: ColoniesState; o
   const player = G.players[id];
   const label = own ? 'МОЯ КОЛОНІЯ' : `КОЛОНІЯ ${Number(id) + 1}`;
   const color = ['#dfc18b', '#aac5d0', '#c6b3cc'][Number(id) % 3];
+  const balance = getPlayerBalance(player);
+  const balanceMap = useTexture(() => balanceTexture(player), `${balance.coin}-${balance.weapon}-${balance.energy}`);
   return (
     <group>
-      {G.leaderID === id && <Html position={[0, .12, -1.25]} center zIndexRange={[1, 0]}>
+      {G.leaderID === id && <Html position={[tableLayout.matX, .12, -1.65]} center zIndexRange={[1, 0]}>
         <button className="leader-marker" aria-label="Лідер кола" aria-describedby={`leader-tooltip-${id}`}>
           <svg viewBox="0 0 40 32" aria-hidden="true"><path d="M5 24 2 7l10 7L20 2l8 12 10-7-3 17ZM6 29h28" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
           <span className="leader-tooltip" id={`leader-tooltip-${id}`} role="tooltip">Лідер кола</span>
         </button>
       </Html>}
-      <RoundedBox args={[4.5, .025, 2]} position={[0, .013, 0]} radius={.01} smoothness={3} receiveShadow><meshStandardMaterial color="#29473f" roughness={1} /></RoundedBox>
-      <group position={[0, .018, -.74]}><Label value={label} color={color} /></group>
-      <mesh position={[-1.94, .045, -.72]}><cylinderGeometry args={[.07, .07, .035, 20]} /><meshStandardMaterial color={color} /></mesh>
+      <RoundedBox args={[6.1, .025, 2.7]} position={[tableLayout.matX, .013, tableLayout.matZ]} radius={.01} smoothness={3} receiveShadow><meshStandardMaterial color="#29473f" roughness={1} /></RoundedBox>
+      <group position={[-.7, .018, -1.15]}><Label value={label} color={color} width={2.6} align="left" /></group>
+      <mesh position={[-2.2, .058, -1.15]}><cylinderGeometry args={[.07, .07, .035, 20]} /><meshStandardMaterial color={color} /></mesh>
+      <group position={[2.05, .018, -1.15]}><Surface texture={balanceMap} width={2.7} height={.4} y={.035} /></group>
       {player.colony.map((card, index) => <group position={[-1.18 + index * 1, .04, .12]} key={card.id}><TableCard card={card} onClick={() => onInspect({ kind: 'building', card, owner: label })} /></group>)}
       {[0, 1].map((index) => <mesh position={[-.16 + index, .033, .12]} rotation={[-Math.PI / 2, 0, 0]} key={index}><planeGeometry args={[.84, 1.18]} /><meshStandardMaterial color="#456457" opacity={.3} transparent /></mesh>)}
-      {player.resources.map((token, index) => <Chip key={token.id} type={token.type} position={[1.77, .09 + Math.floor(index / 3) * .07, -.2 + (index % 3) * .3]} />)}
-      <group position={[0, .025, 1.35]}><Label value={own ? 'МОЯ РУКА' : `${player.hand.length} КАРТ · ЗАКРИТО`} width={2.4} color="#a8ba9e" /></group>
+      <group position={[-2.15, .025, -.75]}><Label value="ДОСЛІДНИКИ" width={1.2} color="#f1ae6c" /></group>
+      {player.researchers.map((researcher, index) => <RoundedBox key={researcher.id} args={[.22, .22, .22]} radius={.025} smoothness={2} position={[-2.3 + (index % 2) * .32, .15, -.42 + Math.floor(index / 2) * .34]} castShadow receiveShadow><meshStandardMaterial color="#ee8e35" roughness={.65} /></RoundedBox>)}
+      <group position={[2.5, .025, -.75]}><Label value="КОНВЕРТОПЛАНИ" width={1.6} /></group>
+      {player.aircraft.map((card, index) => <group key={card.id} position={[2.5 + index * 1.1, .04, .04]}><TableAircraft card={card} onClick={() => onInspect({ kind: 'aircraft', card, owner: label })} /></group>)}
+      <group position={[tableLayout.matX, .025, own ? 1.35 : 1.12]}><Label value={own ? 'МОЯ РУКА' : `${player.hand.length} КАРТ · ЗАКРИТО`} width={2.4} color="#a8ba9e" /></group>
       {player.hand.map((card, index) => {
         const offset = index - (player.hand.length - 1) / 2;
-        return <group key={card.id} position={[offset * .48, .05 + index * .008, 2 + Math.abs(offset) * .035]} rotation={[0, -offset * .09, 0]}><TableCard hidden={!own} onClick={own ? () => onInspect({ kind: 'blank', id: card.id }) : undefined} /></group>;
+        return <group key={card.id} position={[tableLayout.matX + offset * .48, .05 + index * .008, (own ? 2 : 1.55) + Math.abs(offset) * .035]} rotation={[0, -offset * .09, 0]}><TableCard hidden={!own} onClick={own ? () => onInspect({ kind: 'blank', id: card.id }) : undefined} /></group>;
       })}
     </group>
   );
@@ -117,10 +137,10 @@ function CameraRig({ reset, view, angle, zoom, onZoomChange }: { reset: number; 
       // Look straight across the table from the player's seat, without diagonal yaw.
       const distanceScale = Math.max(1, 1.1 / (size.width / size.height));
       camera.up.set(0, 1, 0);
-      camera.position.set(1.2, 7.5 * distanceScale, .8 + 8.2 * distanceScale);
+      camera.position.set(tableLayout.boardX, 7.5 * distanceScale, .8 + 8.2 * distanceScale);
       camera.zoom = 1;
-      controls.current?.target.set(1.2, 0, .8);
-      camera.lookAt(1.2, 0, .8);
+      controls.current?.target.set(tableLayout.boardX, 0, .8);
+      camera.lookAt(tableLayout.boardX, 0, .8);
     }
     camera.updateProjectionMatrix();
     controls.current?.update();
@@ -164,34 +184,29 @@ function World({ G, playerID, onInspect }: { G: ColoniesState; playerID: string;
       <RoundedBox args={[19, .5, 13.6]} position={[0, -.36, 0]} radius={.2} smoothness={4} castShadow receiveShadow><meshStandardMaterial color="#806847" roughness={.75} /></RoundedBox>
       <RoundedBox args={[18.6, .12, 13.2]} position={[0, -.06, 0]} radius={.055} smoothness={4} receiveShadow><meshStandardMaterial map={felt} roughness={1} /></RoundedBox>
       <mesh position={[0, -.94, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[200, 200]} /><meshStandardMaterial color="#162b28" /></mesh>
-      <group position={[.35, .08, -.65]}>
+      <group position={[tableLayout.boardX, .08, tableLayout.boardZ]}>
         <RoundedBox args={[7.7, .14, 4]} radius={.06} smoothness={3} castShadow receiveShadow><meshStandardMaterial color="#d3c9a9" /></RoundedBox>
         <Surface texture={map} width={7.58} height={3.9} y={.075} />
-        {G.sections.map((section, sectionIndex) => (G.sectionCards[section.id] ?? []).map((card, cardIndex) => {
+        {G.sections.map((section, sectionIndex) => (section.id === 'market' ? G.market : G.sectionCards[section.id] ?? []).map((card, cardIndex) => {
+          const buildingCard = section.id === 'market' ? G.market[cardIndex] : undefined;
           const centerX = ((45 + sectionIndex * 365 + 174) / 1536 - .5) * 7.58;
           const centerZ = ((390 + Math.floor(cardIndex / 2) * 170) / 800 - .5) * 3.9;
           return <group key={card.id} position={[centerX + (cardIndex % 2 === 0 ? -.32 : .32), .095, centerZ]} scale={.65}>
-            <TableCard onClick={() => onInspect({ kind: 'blank', id: card.id, owner: section.name })} />
+            <TableCard card={buildingCard} onClick={() => onInspect(buildingCard ? { kind: 'building', card: buildingCard, owner: section.name } : { kind: 'blank', id: card.id, owner: section.name })} />
           </group>;
         }))}
       </group>
-      <group position={[1.2, .04, 3.1]}><PlayerZone id={playerID} G={G} own onInspect={onInspect} /></group>
+      <group position={[tableLayout.boardX - tableLayout.matX, .04, tableLayout.playerZ]}><PlayerZone id={playerID} G={G} own onInspect={onInspect} /></group>
       <DiceTray G={G} />
-      {opponents[0] && <group position={[.5, .04, -3.7]} rotation={[0, Math.PI, 0]}><PlayerZone id={opponents[0]} G={G} own={false} onInspect={onInspect} /></group>}
+      {opponents[0] && <group position={[tableLayout.boardX + tableLayout.matX, .04, 2 * tableLayout.boardZ - tableLayout.playerZ]} rotation={[0, Math.PI, 0]}><PlayerZone id={opponents[0]} G={G} own={false} onInspect={onInspect} /></group>}
       {opponents[1] && <group position={[-6.2, .04, -.4]} rotation={[0, -Math.PI / 2, 0]}><PlayerZone id={opponents[1]} G={G} own={false} onInspect={onInspect} /></group>}
-      <group position={[6.65, .06, -.6]}>
-        <RoundedBox args={[1.55, .05, 2.35]} radius={.02} smoothness={3} receiveShadow><meshStandardMaterial color="#243f36" /></RoundedBox>
-        <group position={[0, .05, -.82]}><Label value="ФІШЕЧКИ" width={1.3} /></group>
-        {(['coin', 'weapon', 'energy'] as const).map((type, index) => <Chip key={type} type={type} position={[0, .09, -.35 + index * .47]} />)}
-        <group position={[0, .05, .87]}><Label value="ЗРАЗКИ" width={1} color="#869d85" /></group>
-      </group>
     </>
   );
 }
 
 export function TableScene({ G, playerID, onInspect, reset, view, angle, zoom, onZoomChange }: { G: ColoniesState; playerID: string; onInspect: (value: CardInspection) => void; reset: number; view: TableView; angle: number; zoom: number; onZoomChange: (zoom: number) => void }) {
   return <Canvas shadows frameloop="demand" dpr={[1, 1.7]} fallback={<div className="webgl-fallback">Браузер не підтримує WebGL. Увімкни апаратне прискорення, щоб відкрити 3D-стіл.</div>}>
-    {view === 'top' ? <OrthographicCamera makeDefault position={[0, 20, 0]} up={[0, 0, -1]} zoom={45} near={.1} far={200} /> : <PerspectiveCamera makeDefault position={[1.2, 7.5, 9]} fov={50} near={.1} far={200} />}
+    {view === 'top' ? <OrthographicCamera makeDefault position={[0, 20, 0]} up={[0, 0, -1]} zoom={45} near={.1} far={200} /> : <PerspectiveCamera makeDefault position={[tableLayout.boardX, 7.5, 9]} fov={50} near={.1} far={200} />}
     <CameraRig reset={reset} view={view} angle={angle} zoom={zoom} onZoomChange={onZoomChange} /><World G={G} playerID={playerID} onInspect={onInspect} />
   </Canvas>;
 }

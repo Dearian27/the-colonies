@@ -10,10 +10,12 @@ import type { BoardProps } from "boardgame.io/react";
 import type { ColoniesState } from "../game/Colonies";
 import { Symbol } from "./Symbol";
 import { InstallationCard } from "./InstallationCard";
-import { ResourceChip } from "./ResourceSlot";
+import { AircraftCard } from "./AircraftCard";
+import { PlayerBalance } from "./PlayerBalance";
+import { RoundHelp } from "./RoundHelp";
 import { ResourceIcon } from "./ResourceIcon";
 import { buildings } from "../game/buildings";
-import { resources } from "../game/resources";
+import { aircraft } from "../game/aircraft";
 import { diceDefinitions, diceFaces, getDiceFace } from "../game/dice";
 import type { CardInspection, TableView } from "./table3d/TableScene";
 
@@ -63,7 +65,7 @@ function CardPreview({
         </span>
         {inspection.kind === "building" ? (
           <InstallationCard card={inspection.card} />
-        ) : (
+        ) : inspection.kind === "aircraft" ? <AircraftCard card={inspection.card} /> : (
           <div
             className="blank-card preview-blank"
             role="img"
@@ -75,7 +77,7 @@ function CardPreview({
         <p>
           {inspection.kind === "building"
             ? "Установка колонії"
-            : inspection.owner
+            : inspection.kind === "aircraft" ? "Транспорт групи" : inspection.owner
               ? "Карта секції · властивості додамо пізніше."
               : "Тут з’являться карти підсилення."}
         </p>
@@ -112,7 +114,7 @@ export function GameTable({ G, playerID, moves, onExit }: TableProps) {
         </div>
         <span className="scene-label">
           <span className="status-dot" />
-          3D-стіл · {Object.keys(G.players).length} гравці
+          3D-стіл · {Object.keys(G.players).length} гравці · Коло {G.round}
         </span>
       </header>
       <div
@@ -214,15 +216,20 @@ export function GameTable({ G, playerID, moves, onExit }: TableProps) {
             return <span key={index} title={face.label} aria-label={`Кубик ${index + 1}: ${face.label}`}>{face.icon}</span>;
           }) : <p>Очікують першого кидка</p>}
         </div>
-        <p>{G.diceRollCount ? `Кидок №${G.diceRollCount} · ефекти ще не реалізовані` : 'Чотири різні кубики прогнозу'}</p>
+        <p>{G.round ? `Коло ${G.round} · дохід нараховано` : 'Перед першим колом · дохід ще не нараховано'}</p>
+        <p>Кожен кидок починає нове коло. Події монстрів ще не розігруються.</p>
         <details className="dice-face-list">
           <summary>Грані кубиків</summary>
           {diceDefinitions.map((die, index) => <div key={die.id} aria-label={`Грані кубика ${index + 1}`}><span>{index + 1}</span>{die.faces.map((face, faceIndex) => <span key={faceIndex} title={diceFaces[face].label} aria-label={diceFaces[face].label}>{diceFaces[face].icon}</span>)}</div>)}
         </details>
+        <details className="market-overview"><summary>Магазин · {G.market.length} карти</summary><div>{G.market.map((card) => <button key={card.id} onClick={() => setInspection({ kind: 'building', card, owner: 'МАГАЗИН' })}>{buildings[card.definitionId].name}</button>)}</div></details>
+        <RoundHelp />
       </section>
       <aside className="colony-summary" aria-label="Моя колонія">
         <span className="eyebrow">МІЙ ПРИХИСТОК</span>
-        <h2>Колонія 1</h2>
+        <h2>Колонія {Number(id) + 1}</h2>
+        <PlayerBalance player={player} label="Мій баланс" />
+        <div className="researcher-summary" aria-label={`Дослідники: ${player.researchers.length}`}><span>Дослідники</span><div>{player.researchers.map((researcher) => <span className="researcher-cube" key={researcher.id} aria-hidden="true" />)}</div><strong>{player.researchers.length}</strong></div>
         {player.colony.map((card) => {
           const definition = buildings[card.definitionId];
           return (
@@ -242,13 +249,7 @@ export function GameTable({ G, playerID, moves, onExit }: TableProps) {
             </button>
           );
         })}
-        {player.resources.length > 0 && (
-          <div className="resource-pool">
-            {player.resources.map((token) => (
-              <ResourceChip key={token.id} type={token.type} />
-            ))}
-          </div>
-        )}
+        {player.aircraft.map((card) => <button className="aircraft-shortcut" key={card.id} onClick={() => setInspection({ kind: 'aircraft', card, owner: 'МОЇ КОНВЕРТОПЛАНИ' })}><Symbol name={aircraft[card.definitionId].icon} />{aircraft[card.definitionId].name}</button>)}
         <p>Відкрий карту, щоб роздивитися.</p>
       </aside>
       <section className="hand-dock" aria-labelledby="hand-title">

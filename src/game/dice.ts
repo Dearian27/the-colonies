@@ -1,11 +1,11 @@
-import config from './dice-config.json';
+import config from "./dice-config.json";
 
 export const diceFaces: Record<string, { icon: string; label: string }> = {
-  sun: { icon: '☀️', label: 'Сонце' },
-  wind: { icon: '🌬️', label: 'Вітер' },
-  deposits: { icon: '🪨', label: 'Оголені поклади' },
-  wreckage: { icon: '⚙️', label: 'Уламки старого світу' },
-  monster: { icon: '👹', label: 'Монстр' },
+  sun: { icon: "☀️", label: "Сонце" },
+  wind: { icon: "🌬️", label: "Вітер" },
+  deposits: { icon: "🪨", label: "Оголені поклади" },
+  wreckage: { icon: "⚙️", label: "Уламки старого світу" },
+  monster: { icon: "👹", label: "Монстр" },
 };
 
 // Every array entry is one equally likely face, including duplicates.

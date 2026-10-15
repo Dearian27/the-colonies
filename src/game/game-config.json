@@ -1,0 +1,16 @@
+{
+  "demoPlayers": 3,
+  "starting": { "researchers": 5, "coins": 3, "colony": ["main-dome"], "aircraft": ["basic-aircraft"] },
+  "market": {
+    "size": 4,
+    "installationIds": ["solar-panel-1", "solar-panel-2", "weapon-workshop-1", "weapon-workshop-2", "weapon-workshop-3", "wind-generator-1", "wind-generator-2"]
+  },
+  "phases": [
+    { "id": "forecast", "name": "Прогноз і оновлення магазину", "description": "Лідер кидає 4 кубики; усі 4 карти магазину замінюються.", "implemented": true },
+    { "id": "income", "name": "Дохід", "description": "Осердя дає 1 монету. Сонце й вітер заповнюють вільні слоти відповідних установок.", "implemented": true },
+    { "id": "planning", "name": "Таємне призначення груп", "description": "Розподілити дослідників і транспорт між секціями.", "implemented": false },
+    { "id": "reveal", "name": "Розкриття", "description": "Відкрити призначення й порівняти ініціативу груп.", "implemented": false },
+    { "id": "sections", "name": "Секції за номерами", "description": "Виконати дії секцій; експедиції — останні.", "implemented": false },
+    { "id": "end", "name": "Завершення кола", "description": "Повний цикл завершення ще запланований. У прототипі наступний кидок одразу починає нове коло.", "implemented": false }
+  ]
+}

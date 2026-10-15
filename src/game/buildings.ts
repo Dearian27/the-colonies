@@ -1,4 +1,4 @@
-import type { ResourceToken, ResourceType } from './resources';
+import type { ResourceToken } from './resources';
 import { installationDefinitions, type InstallationDefinition } from './cards';
 
 export type SlotCount = 1 | 2 | 3;
@@ -21,6 +21,6 @@ export function createBuildingCard(definitionId: string, instanceId: string): Bu
   return {
     id: instanceId,
     definitionId,
-    slots: Array.from({ length: definition.storage.slotCount }, () => null),
+    slots: Array.from({ length: definition.storage.mode === 'slots' ? definition.storage.slotCount : 0 }, () => null),
   };
 }

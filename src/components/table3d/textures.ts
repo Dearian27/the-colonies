@@ -3,6 +3,9 @@ import type { BuildingDefinition } from '../../game/buildings';
 import type { ColoniesState } from '../../game/Colonies';
 import { resources, type ResourceType } from '../../game/resources';
 import { iconPaths } from '../icon-paths';
+import type { AircraftDefinition } from '../../game/cards';
+import type { PlayerState } from '../../game/state';
+import { getPlayerBalance } from '../../game/rules';
 
 function vectorIcon(ctx: CanvasRenderingContext2D, icon: string, x: number, y: number, size: number, color: string) {
   ctx.save(); ctx.translate(x - size / 2, y - size / 2); ctx.scale(size / 40, size / 40);
@@ -48,6 +51,10 @@ export function buildingTexture(definition: BuildingDefinition) {
     if (iconPaths[definition.icon]) vectorIcon(ctx, definition.icon, 192, 230, 125, definition.production.resource === 'weapon' ? '#bd4141' : '#82947b');
     text(ctx, String(definition.production.amount), 163, 372, 44, '#354d46', 700);
     resourceIcon(ctx, definition.production.resource, 215, 372, 44);
+    if (definition.storage.mode === 'wallet') {
+      text(ctx, 'ГАМАНЕЦЬ · БЕЗ ЛІМІТУ', 192, 462, 17, '#85937b');
+      return;
+    }
     const slotSize = 70, gap = 12;
     const total = definition.storage.slotCount * slotSize + (definition.storage.slotCount - 1) * gap;
     for (let index = 0; index < definition.storage.slotCount; index++) {
@@ -55,6 +62,34 @@ export function buildingTexture(definition: BuildingDefinition) {
       ctx.setLineDash([6, 5]); ctx.strokeStyle = '#9bab90'; ctx.lineWidth = 2; ctx.strokeRect(x, 415, slotSize, slotSize); ctx.setLineDash([]);
       resourceIcon(ctx, definition.storage.resource, x + slotSize / 2, 462, 25, '#9bab90');
     }
+  });
+}
+
+export function aircraftTexture(definition: AircraftDefinition) {
+  return canvasTexture(384, 540, (ctx) => {
+    ctx.fillStyle = '#e3e9dd'; ctx.fillRect(0, 0, 384, 540);
+    ctx.strokeStyle = '#a9b99c'; ctx.lineWidth = 3; ctx.strokeRect(18, 18, 348, 504);
+    text(ctx, definition.typeLabel, 192, 55, 15, '#85937b');
+    const words = definition.name.split(' ');
+    const lastWord = words.pop()!;
+    text(ctx, words.join(' '), 192, 100, 30, '#354d46', 700);
+    text(ctx, lastWord, 192, 140, 30, '#354d46', 700);
+    vectorIcon(ctx, definition.icon, 192, 240, 125, '#637f63');
+    text(ctx, `ІНІЦІАТИВА  +${definition.stats.initiative}`, 192, 360, 23, '#354d46', 700);
+    text(ctx, `ВАНТАЖНІСТЬ  ${definition.stats.cargoCapacity}`, 192, 410, 23, '#354d46', 700);
+    text(ctx, `ПІДСИЛЮВАЧІ: ${definition.stats.boosterSlots}`, 192, 465, 20, '#637f63');
+  });
+}
+
+export function balanceTexture(player: PlayerState) {
+  const balance = getPlayerBalance(player);
+  return canvasTexture(768, 120, (ctx) => {
+    ctx.clearRect(0, 0, 768, 120);
+    (['coin', 'weapon', 'energy'] as const).forEach((type, index) => {
+      const x = 100 + index * 250;
+      text(ctx, String(balance[type]), x, 80, 45, '#e8e4cb', 700);
+      resourceIcon(ctx, type, x + 75, 80, 43, '#e8e4cb');
+    });
   });
 }
 
@@ -98,8 +133,12 @@ export function boardTexture(sections: ColoniesState['sections']) {
   });
 }
 
-export function labelTexture(label: string, color: string) {
-  return canvasTexture(768, 100, (ctx) => { ctx.clearRect(0, 0, 768, 100); text(ctx, label, 384, 65, 34, color, 700); });
+export function labelTexture(label: string, color: string, align: 'left' | 'center' = 'center') {
+  return canvasTexture(768, 100, (ctx) => {
+    ctx.clearRect(0, 0, 768, 100);
+    ctx.font = '700 34px sans-serif'; ctx.fillStyle = color; ctx.textAlign = align;
+    ctx.fillText(label, align === 'left' ? 24 : 384, 65);
+  });
 }
 
 export function chipTexture(type: ResourceType) {

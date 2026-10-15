@@ -3,8 +3,9 @@ import { Client } from 'boardgame.io/react';
 import { Colonies } from './game/Colonies';
 import { GameTable } from './components/GameTable';
 import { Symbol } from './components/Symbol';
+import { gameConfig } from './game/config';
 
-const GameClient = Client({ game: Colonies, board: GameTable, numPlayers: 3, debug: false });
+const GameClient = Client({ game: Colonies, board: GameTable, numPlayers: gameConfig.demoPlayers, debug: false });
 const DocumentationPage = lazy(() => import('./components/reference/DocumentationPage').then((module) => ({ default: module.DocumentationPage })));
 const TestCasesPage = lazy(() => import('./components/reference/TestCasesPage').then((module) => ({ default: module.TestCasesPage })));
 const CardsPage = lazy(() => import('./components/reference/CardsPage').then((module) => ({ default: module.CardsPage })));

@@ -1,7 +1,9 @@
-// Illustrative fixtures only. These are not executed test results.
+import { executableScenarios, type ScenarioRun } from './live-scenarios';
+
+// Original examples remain illustrations; executable scenarios explicitly opt in.
 export interface TestScenario {
   id: string;
-  category: 'Ініціатива' | 'Монстри' | 'Кубики';
+  category: 'Ініціатива' | 'Монстри' | 'Кубики' | 'Старт' | 'Баланс' | 'Виробництво' | 'Магазин';
   title: string;
   ruleSection: string;
   given: string;
@@ -11,13 +13,14 @@ export interface TestScenario {
   dice?: string[];
   groups?: { name: string; researchers: number; aircraft: number; initiative: number; leader?: boolean }[];
   result: string[];
+  execute?: () => ScenarioRun;
 }
 
 export const testScenarios: TestScenario[] = [
   { id: 'INI-01', category: 'Ініціатива', title: 'Транспорт компенсує меншу групу', ruleSection: '5',
     given: 'Група А: 3 дослідники пішки. Група Б: 2 дослідники на конвертоплані з бонусом +2.',
     action: 'Порівняти ініціативу груп у магазині.', expected: 'Б має 4, А має 3. Група Б обирає першою.',
-    note: 'Бонус +2 — ілюстративне значення, не затверджена модель транспорту.',
+    note: 'Бонус +2 тепер затверджений для базового конвертоплана. Цей приклад ще не виконує розподіл груп.',
     groups: [{ name: 'Група А', researchers: 3, aircraft: 0, initiative: 3 }, { name: 'Група Б', researchers: 2, aircraft: 2, initiative: 4 }], result: ['1 · Група Б', '2 · Група А'] },
   { id: 'INI-02', category: 'Ініціатива', title: 'Коронка розв’язує нічию', ruleSection: '5',
     given: 'Лідер має 3 дослідників пішки. Інший гравець — 1 дослідника і бонус конвертоплана +2.',
@@ -44,4 +47,5 @@ export const testScenarios: TestScenario[] = [
     expected: 'Монстр неможливий. Імовірність уламків — 3/6 = 50%.',
     note: 'Це опис очікуваного результату перевірки конфігурації, не звіт запущеного автотесту.',
     dice: ['sun', 'wind', 'deposits', 'wreckage', 'wreckage', 'wreckage'], result: ['0 граней монстра', '3 грані уламків', '50% уламків'] },
+  ...executableScenarios,
 ];

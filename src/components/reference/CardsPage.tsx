@@ -6,6 +6,8 @@ import { InstallationCard } from '../InstallationCard';
 import { Symbol } from '../Symbol';
 import { ResourceIcon } from '../ResourceIcon';
 import { ReferenceLayout } from './ReferenceLayout';
+import { AircraftCard } from '../AircraftCard';
+import { createAircraftCard } from '../../game/aircraft';
 
 function EffectCard({ card }: { card: EffectCardDefinition }) {
   const placeholder = card.status === 'placeholder';
@@ -33,9 +35,9 @@ export function CardsPage() {
           <header><Symbol name={item.symbol} /><div><h2 id={`category-${item.id}`}>{item.title}</h2><span>{defined ? `Карт у прототипі: ${defined}` : 'Карти ще не визначені'}</span></div></header>
           <p className="catalog-description">{item.description}</p>
           <div className="catalog-entries">{cards.map((card) => <div className="catalog-entry" key={card.id}>
-            <div className="catalog-card-preview">{card.type === 'installation' && card.status === 'prototype' ? <InstallationCard card={createBuildingCard(card.id, `catalog-${card.id}`)} /> : card.type !== 'installation' ? <EffectCard card={card} /> : <article className="catalog-template" aria-label={`Заготовка: ${card.name}`}><span className="template-kind">{card.typeLabel}</span><h3>{card.name}</h3><div className="template-icon"><Symbol name={card.icon} /></div><span className="template-stamp">ЗАГОТОВКА · НЕ ІГРОВА КАРТА</span></article>}</div>
+            <div className="catalog-card-preview">{card.type === 'installation' && card.status === 'prototype' ? <InstallationCard card={createBuildingCard(card.id, `catalog-${card.id}`)} /> : card.type === 'aircraft' && card.status === 'prototype' ? <AircraftCard card={createAircraftCard(card.id, `catalog-${card.id}`)} /> : card.type === 'booster' || card.type === 'monster' ? <EffectCard card={card} /> : <article className="catalog-template" aria-label={`Заготовка: ${card.name}`}><span className="template-kind">{card.typeLabel}</span><h3>{card.name}</h3><div className="template-icon"><Symbol name={card.icon} /></div><span className="template-stamp">ЗАГОТОВКА · НЕ ІГРОВА КАРТА</span></article>}</div>
             <div className="catalog-entry-caption"><strong>{card.name}</strong><code>{card.id}</code></div>
-            {card.type === 'installation' ? <details className="catalog-properties"><summary>Параметри карти</summary><dl><dt>Вихід у макеті</dt><dd>{card.production.amount} <ResourceIcon type={card.production.resource} /></dd><dt>Слоти</dt><dd>{card.storage.slotCount}</dd><dt>Тип ресурсу</dt><dd>{resources[card.storage.resource].label}</dd><dt>Умова</dt><dd>{card.production.trigger === 'sun' ? '☀️ Сонце' : card.production.trigger === 'wind' ? '🌬️ Вітер' : 'Не визначено'}</dd></dl>{card.note && <p>{card.note}</p>}</details> : card.note && <p className="catalog-placeholder-note">{card.note}</p>}
+            {card.type === 'installation' ? <details className="catalog-properties"><summary>Параметри карти</summary><dl><dt>Вихід</dt><dd>{card.production.amount} <ResourceIcon type={card.production.resource} /></dd><dt>Зберігання</dt><dd>{card.storage.mode === 'wallet' ? 'Гаманець · без ліміту' : `${card.storage.slotCount} слоти`}</dd><dt>Тип ресурсу</dt><dd>{resources[card.storage.resource].label}</dd><dt>Умова</dt><dd>{card.production.trigger === 'sun' ? '☀️ Сонце' : card.production.trigger === 'wind' ? '🌬️ Вітер' : card.production.trigger === 'round' ? 'Кожне коло' : 'Не визначено'}</dd></dl>{card.note && <p>{card.note}</p>}</details> : card.note && <p className="catalog-placeholder-note">{card.note}</p>}
           </div>)}</div>
           {!cards.length && <p className="catalog-placeholder-note">У цій категорії поки немає карт.</p>}
           {item.note && <p className="catalog-placeholder-note">{item.note}</p>}
